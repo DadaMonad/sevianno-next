@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+ <ModulePrefs title="Video upload" description="Upload videos in Sevianno" author="Kevin Jahns, Chair of Computer Science 5, RWTH Aachen University, Germany" author_email="jahns@dbis.rwth-aachen.de"  scrolling="true">
+	<Require feature="dynamic-height"/>
+
+</ModulePrefs>
+
+  <Content type="html"><![CDATA[
+  
+<script type="application/javascript" src="http://127.0.0.1:1337/js/sevianno-draggable.js"></script>
+
+<script src="https://rawgithub.com/nicolaescu/widgetbundles/master/libraries/DUIClient.js"></script>
+<script src="js/upload.js" type="text/javascript"> </script>	
+	
+<div class="sevianno_autoresize">
+		<div>
+			<input type="text" name="searchField" id="searchField" > </input>
+			Choose Video  <span>(</span><span id="numberOfAvailableVideos"></span> <span> available)</span> 
+			<button type="button" onclick="getMpeg7MediaIds()"> Refresh </button>
+			<hr/>
+		</div>
+</div>
+<div id="q" style="height: 3px;"></div>
+
+  ]]></Content>
+</Module>
