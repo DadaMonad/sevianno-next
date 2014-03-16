@@ -1,5 +1,5 @@
-Sevianno = require "./sevianno"
+Sevianno = require "./sevianno.coffee"
 
 sevianno = new Sevianno()
-console.log "works fine :-) !"
-throw new Error "dtrn"
+console.log "dt rnd trnd trndtrn "
+throw new Error "dtrn "

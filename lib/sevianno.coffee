@@ -1,6 +1,4 @@
-$ = require "jquery"
-
-exports.Sevianno = do ()->
+module.exports = do ()->
 	TAG = "Video List"
 	lasurl = "http://steen.informatik.rwth-aachen.de:9914/"
 	appCode = "vc"
@@ -22,13 +20,15 @@ exports.Sevianno = do ()->
 	
 	class Sevianno
 		constructor: ()->
-			@lasClient = new LasAjaxClient "sevianno", lasFeedbackHandler
+			@lasClient = new LasAjaxClient "sevianno", @lasFeedbackHandlerRoutine
+			@lasHandler = []
 			
 			@duiClient = new DUIClient()
-			@duiClient.connect iwcCallback
+			@duiClient.connect @iwcCallbackRoutine
+			@iwcHandler = []
 
 			onFinish = (intent)->
-					if lasClient.getStatus() is not "loggedIn" and allowSendGetLasInfo
+					if @lasClient.getStatus() is not "loggedIn" and allowSendGetLasInfo
 
 						lasIntent =
 							action: "GET_LAS_INFO"
@@ -42,7 +42,7 @@ exports.Sevianno = do ()->
 			@duiClient.initOK()
     
 			@lasClient.verifyStatus()
-			if lasClient.getStatus() is not "loggedIn"
+			if @lasClient.getStatus() is not "loggedIn"
 				onLogout()
 			
 			@registerLasFeedbackHandler Enums.Feedback.LoginSuccess, ()->
@@ -88,11 +88,11 @@ exports.Sevianno = do ()->
  
 		# Register new las feedback handler which listens to $statusCode. It is possible to add multiple handlers
 		# for one statusCode. $f is executed with: f(statusCode, message)
-		registerLasFeedbackHandler: (statusCode, f)->
+		registerLasFeedbackHandler: (statusCode, f) ->
 			@lasHandler[statusCode] ?= []
-			@lasHandler[statuscode].push f
+			@lasHandler[statusCode].push f
 		
-		lasFeedbackHandlerRoutine: (statusCode, message)->
+		lasFeedbackHandlerRoutine: (statusCode, message)=>
 			@lasHandler[statusCode]?.map (f)->
 				f statusCode, message
 		
@@ -100,7 +100,7 @@ exports.Sevianno = do ()->
 			@iwcHandler[actionName] ?= []
 			@iwcHandler[actionName].push f
 		
-		iwcCallbackRoutine: (intent)->
+		iwcCallbackRoutine: (intent)=>
 			@lasHandler[intent.action]?.map (f)->
 				f intent
 		
@@ -109,3 +109,5 @@ exports.Sevianno = do ()->
 					@duiClient.sendIntent intent
 				else
 					alert "Intent not valid!"
+	
+	return Sevianno

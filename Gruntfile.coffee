@@ -11,28 +11,9 @@ module.exports = (grunt) ->
 		browserify:
 			dist:
 				files:
-					'widgets/js/upload.js': ['lib_build/upload.js']
+					'widgets/js/upload.js': ['lib/upload.coffee']
 				options:
-					#transform: ['coffeeify']
-					debug: true
-
-		coffee:
-			lib:
-				options:
-					bare: true
-					sourceMap: true
-					expand: true
-					src: ["lib/**/*.coffee", "lib/*.coffee"]
-					dest: "build/"
-					ext: ".js"
-			widgets:
-				options:
-					bare: true
-					sourceMap: true
-					expand: true
-					src: ["widgets/js/*.coffee"]
-					dest: "widgets/js/"
-					ext: ".js"
+					transform: ['coffeeify']
 
 		'ftp-deploy':
 			build:
@@ -73,8 +54,8 @@ module.exports = (grunt) ->
 				
 		watch:
 			gruntfile:
-				files: ['widgets/*', 'lib/**/*']
-				tasks: ['coffeelint', 'coffee', 'browserify']
+				files: ['lib/**/*']
+				tasks: ['coffeelint', 'browserify']
 				
 		connect:
 			server:
@@ -193,8 +174,6 @@ module.exports = (grunt) ->
 				}]
 
 			
-	grunt.loadNpmTasks 'grunt-contrib-qunit'
-	grunt.loadNpmTasks 'grunt-contrib-jshint'
 	grunt.loadNpmTasks 'grunt-coffeelint'
 	grunt.loadNpmTasks 'grunt-contrib-watch'
 	grunt.loadNpmTasks 'grunt-contrib-connect'
@@ -212,6 +191,6 @@ module.exports = (grunt) ->
 	grunt.registerTask 'servewidgets', ['connect']
 	grunt.registerTask 'save-githooks', ['githooks']
 	grunt.registerTask 'deploy', ['replaceUrlsFtp', 'ftp-deploy', 'replaceUrlsDevelopment']
-	grunt.registerTask 'default', ['coffeelint', 'coffee', 'browserify', 'watch']
+	grunt.registerTask 'default', ['coffeelint', 'browserify', 'watch']
 
 
