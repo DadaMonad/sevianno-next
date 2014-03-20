@@ -12,6 +12,7 @@ module.exports = (grunt) ->
 			dist:
 				files:
 					'widgets/js/upload.js': ['lib/upload.coffee']
+					'widgets/js/annotation_table.js': ['lib/annotation_table.coffee']
 				options:
 					transform: ['coffeeify']
 
@@ -53,7 +54,7 @@ module.exports = (grunt) ->
 				'post-commit': 'replaceUrlsDevelopment'
 				
 		watch:
-			gruntfile:
+			lib:
 				files: ['lib/**/*']
 				tasks: ['coffeelint', 'browserify']
 				
@@ -64,6 +65,15 @@ module.exports = (grunt) ->
 					port: 1337
 					base: 'widgets'
 					keepalive: true
+					middleware: (connect, options, middlewares)->
+						middlewares.push (req, res, next)->
+								if res.header?
+									res.header('Access-Control-Allow-Origin', "*")
+									res.header('Access-Control-Allow-Credentials', true)
+									res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+									res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+								return next()
+						return middlewares
 		replace:
 			mainGit:
 				src: ['widgets/*.xml']
@@ -172,6 +182,11 @@ module.exports = (grunt) ->
 					from: "<%= defaults.replacementUrls.ftp %>"
 					to: "<%= defaults.replacementUrls.development %>"
 				}]
+		concurrent:
+			default:
+				tasks:  ['servewidgets', 'watch']
+				options:
+					logConcurrentOutput: true
 
 			
 	grunt.loadNpmTasks 'grunt-coffeelint'
@@ -182,8 +197,7 @@ module.exports = (grunt) ->
 	grunt.loadNpmTasks 'grunt-ftp-deploy'
 	grunt.loadNpmTasks 'grunt-contrib-coffee'
 	grunt.loadNpmTasks 'grunt-browserify'
-	
-
+	grunt.loadNpmTasks 'grunt-concurrent'
 	
 	grunt.registerTask 'replaceUrlsProduction', ['replace:mainGit', 'replace:jsGit', 'replace:cssGit', 'replace:readmeGit']
 	grunt.registerTask 'replaceUrlsFtp', ['replace:mainFtp', 'replace:jsFtp', 'replace:cssFtp', 'replace:readmeFtp']
@@ -191,6 +205,6 @@ module.exports = (grunt) ->
 	grunt.registerTask 'servewidgets', ['connect']
 	grunt.registerTask 'save-githooks', ['githooks']
 	grunt.registerTask 'deploy', ['replaceUrlsFtp', 'ftp-deploy', 'replaceUrlsDevelopment']
-	grunt.registerTask 'default', ['coffeelint', 'browserify', 'watch']
+	grunt.registerTask 'default', ['coffeelint', 'browserify', 'concurrent:default']
 
 

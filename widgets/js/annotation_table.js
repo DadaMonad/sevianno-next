@@ -1,4 +1,32 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var Sevianno, sevianno;
+
+Sevianno = require("./sevianno.coffee");
+
+sevianno = new Sevianno();
+
+sevianno.registerIwcCallback("ACTION_OPEN", function(intent) {
+  var parametersAsJSONArray;
+  console.log("" + intent.extras.videoUrl);
+  parametersAsJSONArray = new Array();
+  parametersAsJSONArray.push({
+    type: "String[]",
+    value: [intent.extras.videoUrl]
+  });
+  return sevianno.lasClient.invoke("videoinformation", "getSemanticAnnotationsSet", parametersAsJSONArray, function(status, result) {
+    return console.log("alalalala ahhahahhahh      dtrnuiade trnd" + result.value);
+  });
+
+  /*
+  	console.log "#{intent.extras.videoUrl}"
+  	parametersAsJSONArray = new Array intent.extras.videoUrl
+  	sevianno.lasClient.invoke "videoinformation", "getSemanticAnnotationsSet", parametersAsJSONArray, (status, result)->
+  		console.log "#{result.value}"
+   */
+});
+
+
+},{"./sevianno.coffee":2}],2:[function(require,module,exports){
 var Sevianno, TAG, allowSendGetLasInfo, appCode, lasurl, onLogin, onLogout, thumbnailsURLs, uploaderNames, videoNames, videoURLs;
 
 TAG = "Video List";
@@ -152,38 +180,4 @@ Sevianno = (function() {
 module.exports = Sevianno;
 
 
-},{}],2:[function(require,module,exports){
-var Sevianno, loginForm, sevianno;
-
-Sevianno = require("./sevianno.coffee");
-
-sevianno = new Sevianno();
-
-loginForm = new FormData();
-
-loginForm.append('user', 'aarij');
-
-loginForm.append('password', 'test123');
-
-
-/*
-$.ajax
-	url: 'http://137.226.58.21:8080/ClViTra_2.0/rest/ClViTra/videos'
-	data: loginForm,
-	processData: false,
-	type:        'POST',
-	contentType: false,
-	success: (data)->
-		console.log "success #{data}"
-	error: (err)->
-		console.log "error #{err}"
- */
-
-console.log("dtrn");
-
-$('button').click(function() {
-  return console.log("dtrn");
-});
-
-
-},{"./sevianno.coffee":1}]},{},[2])
+},{}]},{},[1])
