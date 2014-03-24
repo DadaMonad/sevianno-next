@@ -7,7 +7,7 @@ module.exports = (grunt) ->
         development: "http://127.0.0.1:1337/"
         git: "https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/"
         ftp: "http://dbis.rwth-aachen.de/~jahns/role-widgets/sevianno-next/"
-        
+
     browserify:
       dist:
         files:
@@ -37,7 +37,7 @@ module.exports = (grunt) ->
           "level": "ignore"
         "no_trailing_whitespace":
           "level": "ignore"
-      
+
       gruntfile: [
         'Gruntfile.coffee'
         ]
@@ -47,17 +47,17 @@ module.exports = (grunt) ->
       widgets: [
         'widgets/**/*.coffee'
         ]
-    
+
     githooks:
       all:
         'pre-commit': 'replaceUrlsProduction'
         'post-commit': 'replaceUrlsDevelopment'
-        
+
     watch:
       lib:
         files: ['lib/**/*']
         tasks: ['coffeelint', 'browserify']
-        
+
     connect:
       server:
         options:
@@ -72,6 +72,7 @@ module.exports = (grunt) ->
                   res.header('Access-Control-Allow-Credentials', true)
                   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
                   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+                  res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
                 return next()
             return middlewares
     replace:
@@ -88,57 +89,57 @@ module.exports = (grunt) ->
         replacements: [{
           to: "<%= defaults.replacementUrls.git %>"
           from: "<%= defaults.replacementUrls.development %>"
-        }]     
-        
+        }]
+
       cssGit:
         src: ['widgets/css/*.css']
         dest: 'widgets/css/'
         replacements: [{
           to: "<%= defaults.replacementUrls.git %>"
           from: "<%= defaults.replacementUrls.development %>"
-        }]     
-       
+        }]
+
       readmeGit:
         src: ['README.md']
         dest: 'README.md'
         replacements: [{
           from: "<%= defaults.replacementUrls.development %>"
           to: "<%= defaults.replacementUrls.git %>"
-        }]     
-       
+        }]
+
       mainFtp:
         src: ['widgets/*.xml']
         dest: 'widgets/'
         replacements: [{
           from: "<%= defaults.replacementUrls.development %>"
           to: "<%= defaults.replacementUrls.ftp %>"
-        }]     
-       
+        }]
+
       jsFtp:
         src: ['widgets/js/*.+(js|coffee)']
         dest: 'widgets/js/'
         replacements: [{
           to: "<%= defaults.replacementUrls.ftp %>"
           from: "<%= defaults.replacementUrls.development %>"
-        }]     
-       
+        }]
+
       cssFtp:
         src: ['widgets/css/*.css']
         dest: 'widgets/css/'
         replacements: [{
           to: "<%= defaults.replacementUrls.ftp %>"
           from: "<%= defaults.replacementUrls.development %>"
-        }]     
-       
-       
+        }]
+
+
       readmeFtp:
         src: ['README.md']
         dest: 'README.md'
         replacements: [{
           from: "<%= defaults.replacementUrls.development %>"
           to: "<%= defaults.replacementUrls.ftp %>"
-        }]     
-       
+        }]
+
       maindev:
         src: ['widgets/*.+(xml|md)']
         dest: 'widgets/'
@@ -148,8 +149,8 @@ module.exports = (grunt) ->
         },{
           from: "<%= defaults.replacementUrls.ftp %>"
           to: "<%= defaults.replacementUrls.development %>"
-        }]     
-       
+        }]
+
       jsdev:
         src: ['widgets/js/*.+(js|coffee))']
         dest: 'widgets/js/'
@@ -159,8 +160,8 @@ module.exports = (grunt) ->
         },{
           from: "<%= defaults.replacementUrls.ftp %>"
           to: "<%= defaults.replacementUrls.development %>"
-        }]     
-       
+        }]
+
       cssdev:
         src: ['widgets/css/*.css']
         dest: 'widgets/css/'
@@ -171,7 +172,7 @@ module.exports = (grunt) ->
           from: "<%= defaults.replacementUrls.ftp %>"
           to: "<%= defaults.replacementUrls.development %>"
         }]
-      
+
       readmedev:
         src: ['README.md']
         dest: 'README.md'
@@ -188,7 +189,7 @@ module.exports = (grunt) ->
         options:
           logConcurrentOutput: true
 
-      
+
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-connect'
@@ -198,7 +199,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-browserify'
   grunt.loadNpmTasks 'grunt-concurrent'
-  
+
   grunt.registerTask 'replaceUrlsProduction', ['replace:mainGit', 'replace:jsGit', 'replace:cssGit', 'replace:readmeGit']
   grunt.registerTask 'replaceUrlsFtp', ['replace:mainFtp', 'replace:jsFtp', 'replace:cssFtp', 'replace:readmeFtp']
   grunt.registerTask 'replaceUrlsDevelopment', ['replace:maindev', 'replace:jsdev', 'replace:cssdev', 'replace:readmedev']

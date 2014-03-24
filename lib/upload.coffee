@@ -2,20 +2,25 @@ Sevianno = require "./sevianno.coffee"
 
 sevianno = new Sevianno()
 
-loginForm = new FormData()
-loginForm.append 'user', 'aarij'
-loginForm.append 'password', 'test123'
+credentials = do ()->
+  user = "aarij"
+  password = "test123"
+  hash = $.base64.encode("#{user.toLowerCase()}:#{password}")
+  return "Basic " + hash
 
-$.ajax
-  url: 'http://137.226.58.21:8080/ClViTra_2.0/rest/ClViTra/videos'
-  data: loginForm,
-  processData: false,
-  type:        'POST',
-  contentType: false,
-  success: (data)->
-    console.log "success #{data}"
-  error: (err)->
-    console.log "error #{err}"
+f = ()->
+
+  $.ajax
+    url: 'http://137.226.58.21:8080/ClViTra_2.0/rest/ClViTra/auth'
+    type: "GET"
+    dataType: "json"
+    beforeSend: (xhr)->
+      xhr.setRequestHeader 'Authorization', credentials
+
+    success: (data)->
+      console.log "success: #{JSON.stringify(data)}"
+    error: (err)->
+      console.log "error: #{JSON.stringify(err)}"
 
 console.log "dtrn"
-$('button').click ()-> console.log "dtrn"
+$('button').click f
