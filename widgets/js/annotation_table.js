@@ -18,10 +18,10 @@ sevianno.registerIwcCallback("ACTION_OPEN", function(intent) {
   });
 
   /*
-  	console.log "#{intent.extras.videoUrl}"
-  	parametersAsJSONArray = new Array intent.extras.videoUrl
-  	sevianno.lasClient.invoke "videoinformation", "getSemanticAnnotationsSet", parametersAsJSONArray, (status, result)->
-  		console.log "#{result.value}"
+  console.log "#{intent.extras.videoUrl}"
+  parametersAsJSONArray = new Array intent.extras.videoUrl
+  sevianno.lasClient.invoke "videoinformation", "getSemanticAnnotationsSet", parametersAsJSONArray, (status, result)->
+    console.log "#{result.value}"
    */
 });
 
