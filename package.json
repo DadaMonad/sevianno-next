@@ -17,6 +17,7 @@
     "grunt-contrib-coffee": "^0.10.1",
     "jquery": "^2.1.0",
     "grunt-concurrent": "^0.5.0",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "moment": "~2.5.1"
   }
 }

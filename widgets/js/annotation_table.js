@@ -1,37 +1,56 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Sevianno, sevianno;
+var Sevianno, sevianno, _;
 
 Sevianno = require("./sevianno.coffee");
+
+_ = require("underscore");
 
 sevianno = new Sevianno();
 
 sevianno.registerIwcCallback("ACTION_OPEN", function(intent) {
-  console.log("" + intent.extras.videoUrl);
-
-  /*
-  parametersAsJSONArray = new Array()
-  parametersAsJSONArray.push {
-            type : "String[]"
-            value : [intent.extras.videoUrl]
-          }
-  sevianno.lasClient.invoke "videoinformation", "getSemanticAnnotationsSet", parametersAsJSONArray, (status, result)->
-    console.log "alalalala ahhahahhahh      dtrnuiade trnd#{result.value}"
-   */
-
-  /*
-  console.log "#{intent.extras.videoUrl}"
-  parametersAsJSONArray = new Array intent.extras.videoUrl
-  sevianno.lasClient.invoke "videoinformation", "getSemanticAnnotationsSet", parametersAsJSONArray, (status, result)->
-    console.log "#{result.value}"
-   */
-  return sevianno.getVideoAnnotations(intent.extras.videoUrl, function(videoinformation) {
-    throw new Error("dnr");
-    return console.log("Result: " + videoinformation);
+  var $annotation_table;
+  $annotation_table = $($(".sevianno-annotation-table").find("tbody"));
+  $annotation_table.empty();
+  $annotation_table.append("<tr class='info'><td>Loading...</td><td></td></tr>");
+  sevianno.getVideoAnnotations(intent.extras.videoUrl, function(annotations) {
+    var annotation, atime, thetime, _i, _len;
+    $annotation_table.empty();
+    for (_i = 0, _len = annotations.length; _i < _len; _i++) {
+      annotation = annotations[_i];
+      atime = annotation.time;
+      thetime = null;
+      if (atime >= 60) {
+        thetime = "" + (Math.floor(atime / 60)) + " min " + (atime % 60) + " sec";
+      } else {
+        thetime = "" + (atime % 60) + " sec";
+      }
+      $annotation_table.append("<tr class='sevianno-annotation-entry' annotationvalue='" + (JSON.stringify(annotation)) + "'><td>" + annotation.text + "</td><td>" + thetime + "</td></tr>");
+    }
+    return $(".sevianno-annotation-entry").each(function() {
+      var annotationtime, iwcintent;
+      annotationtime = $.parseJSON($(this).attr("annotationvalue")).time;
+      iwcintent = {
+        "component": "",
+        "action": "ACTION_SEEK",
+        "data": intent.extras.videoUrl,
+        "dataType": "video/mp4",
+        "flags": ["PUBLISH_GLOBAL"],
+        "extras": {
+          "position": annotationtime
+        }
+      };
+      return $(this).click(function() {
+        return sevianno.sendIwcIntent(iwcintent);
+      });
+    });
+  });
+  return sevianno.getVideoInformation(intent.extras.videoUrl, function(videoinformation) {
+    return console.log("VideoInformation: " + videoinformation);
   });
 });
 
 
-},{"./sevianno.coffee":2}],2:[function(require,module,exports){
+},{"./sevianno.coffee":2,"underscore":3}],2:[function(require,module,exports){
 var Sevianno, TAG, allowSendGetLasInfo, appCode, lasurl, onLogin, onLogout, thumbnailsURLs, uploaderNames, videoNames, videoURLs, _,
   __slice = [].slice;
 
@@ -54,14 +73,20 @@ videoNames = new Array();
 uploaderNames = new Array();
 
 onLogout = function() {
-  console.log("on logout. login status:" + lasClient.getStatus());
   videoURLs = null;
   thumbnailsURLs = null;
   videoNames = Array();
-  return uploaderNames = Array();
+  uploaderNames = Array();
+  return $(".on-login").each(function() {
+    return $(this).css('display', 'none');
+  });
 };
 
-onLogin = function() {};
+onLogin = function() {
+  return $(".on-login").each(function() {
+    return $(this).css('display', 'block');
+  });
+};
 
 Sevianno = (function() {
   function Sevianno() {
@@ -84,22 +109,30 @@ Sevianno = (function() {
         console.log("Sevianno-Next intent received iwc: " + (JSON.stringify(intent)));
         console.log("" + (JSON.stringify(_this.iwcHandler)));
         return (_ref = _this.iwcHandler[intent.action]) != null ? _ref.map(function(f) {
-          return f(intent);
+          var e;
+          try {
+            return f(intent);
+          } catch (_error) {
+            e = _error;
+            return console.log(e);
+          }
         }) : void 0;
       };
     })(this));
-    onFinish = function(intent) {
-      var lasIntent;
-      if (this.lasClient.getStatus() === !"loggedIn" && allowSendGetLasInfo) {
-        lasIntent = {
-          action: "GET_LAS_INFO",
-          component: "",
-          data: "",
-          dataType: ""
-        };
-        return duiClient.publishToUser(lasIntent);
-      }
-    };
+    onFinish = (function(_this) {
+      return function(intent) {
+        var lasIntent;
+        if (_this.lasClient.getStatus() === !"loggedIn" && allowSendGetLasInfo) {
+          lasIntent = {
+            action: "GET_LAS_INFO",
+            component: "",
+            data: "",
+            dataType: ""
+          };
+          return duiClient.publishToUser(lasIntent);
+        }
+      };
+    })(this);
     this.duiClient.finishMigration = onFinish;
     this.duiClient.updateState = onFinish;
     this.duiClient.initOK();
@@ -107,25 +140,31 @@ Sevianno = (function() {
     if (this.lasClient.getStatus() === !"loggedIn") {
       onLogout();
     }
-    this.registerLasFeedbackHandler(Enums.Feedback.LoginSuccess, function() {
-      return onLogin();
-    });
-    this.registerLasFeedbackHandler(Enums.Feedback.LogoutSuccess, function() {
-      return onLogout();
-    });
+    this.registerLasFeedbackHandler(Enums.Feedback.LoginSuccess, onLogin);
+    this.registerLasFeedbackHandler(Enums.Feedback.LogoutSuccess, onLogout);
     this.registerLasFeedbackHandler(Enums.Feedback.LoginError, function() {
       return alert("Login failed! Message: " + message);
     });
     this.registerLasFeedbackHandler(Enums.Feedback.LogoutError, function() {
       return alert("Logout failed! Message: " + message);
     });
-    this.registerIwcCallback("ACTION_LOGOUT", function(intent) {
-      if ((intent.data != null) && intent.dataType === "text/html") {
-        lasClient.logout();
-        console.log("logged out");
-        return allowSendGetLasInfo = true;
-      }
-    });
+    this.registerIwcCallback("ACTION_LOGOUT", (function(_this) {
+      return function(intent) {
+        var e;
+        if ((intent.data != null) && intent.dataType === "text/html") {
+          try {
+            _this.lasClient.logout();
+            return (function() {})();
+          } catch (_error) {
+            e = _error;
+            return console.log("Logout error: " + e);
+          } finally {
+            console.log("logged out");
+            allowSendGetLasInfo = true;
+          }
+        }
+      };
+    })(this));
     this.registerIwcCallback("LAS_INFO", (function(_this) {
       return function(intent) {
         allowSendGetLasInfo = false;
@@ -237,26 +276,61 @@ Sevianno = (function() {
     } else {
       whereCondition = "";
     }
-    return this.lasInvocationHelper("videoinformation", "getVideoInformationConditional", "", "", whereCondition, "", function(status, result) {
-      if (status === 200) {
+    return this.lasInvocationHelper("videoinformation", "getVideoInformationConditional", "", "", whereCondition, "", function(statusCode, result) {
+      if (statusCode === 200) {
         return callback(result.value);
       } else {
-        throw new Error("Received status code " + statusCode);
+        throw new Error("Received bad status code " + statusCode);
       }
     });
   };
 
-  Sevianno.prototype.getVideoAnnotations = function(uri) {
+  Sevianno.prototype.getVideoAnnotations = function(uri, callback) {
     return this.getVideoInformation(uri, (function(_this) {
       return function(videoinformation) {
-        var $videoinformation, annotations, id, _i, _len, _ref;
+        var $a, $videoinformation, a, annotationids, annotations, time_in_seconds;
         $videoinformation = $($.parseXML(videoinformation));
-        _ref = $videoinformation.find("semanticRefId");
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          id = _ref[_i];
-          annotations = $(id).text();
-        }
-        throw new Error("" + annotations[0]);
+        annotations = (function() {
+          var _i, _len, _ref, _results;
+          _ref = $videoinformation.find("annotation");
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            a = _ref[_i];
+            $a = $(a);
+            time_in_seconds = (function() {
+              var all_in_sek, min_in_sek, std_in_sek, std_min_sek_msek_arr;
+              std_min_sek_msek_arr = $a.find('timepoint').text().split(':');
+              std_in_sek = Number(std_min_sek_msek_arr[0].slice(1)) * 3600;
+              min_in_sek = Number(std_min_sek_msek_arr[1]) * 60;
+              return all_in_sek = Number(std_min_sek_msek_arr[2]) + min_in_sek + std_in_sek;
+            })();
+            _results.push([$a.find("semanticRefId").text(), time_in_seconds]);
+          }
+          return _results;
+        })();
+        annotations = _.filter(annotations, function(a) {
+          return a[0] !== 'undefined' && _.isNumber(a[1]) && !_.isNaN(a[1]);
+        });
+        annotationids = _.map(annotations, function(a) {
+          return a[0];
+        });
+        return _this.lasInvocationHelper("videoinformation", "getSemanticAnnotationsSet", annotationids, function(statusCode, result) {
+          if (statusCode === 200) {
+            annotations = _.zip(annotations, result.value);
+            annotations = _.map(annotations, function(_arg) {
+              var id, text, time, _ref;
+              (_ref = _arg[0], id = _ref[0], time = _ref[1]), text = _arg[1];
+              return {
+                id: id,
+                time: time,
+                text: text
+              };
+            });
+            return callback(annotations);
+          } else {
+            throw new Error("Received bad status code " + statusCode);
+          }
+        });
       };
     })(this));
   };

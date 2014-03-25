@@ -11,12 +11,17 @@ videoNames = new Array()
 uploaderNames = new Array()
 
 onLogout = () ->
-  console.log("on logout. login status:" + lasClient.getStatus())
   videoURLs = null
   thumbnailsURLs = null
   videoNames = Array()
   uploaderNames = Array()
+
+  $(".on-login").each ()->
+    $(@).css('display','none')
+
 onLogin = ()->
+  $(".on-login").each ()->
+    $(@).css('display', 'block')
 
 class Sevianno
   constructor: ()->
@@ -33,11 +38,11 @@ class Sevianno
       console.log "Sevianno-Next intent received iwc: #{JSON.stringify(intent)}"
       console.log "#{JSON.stringify(@iwcHandler)}"
       @iwcHandler[intent.action]?.map (f)->
-        f intent
+        try f intent
+        catch e then console.log e
 
-    onFinish = (intent)->
+    onFinish = (intent)=>
         if @lasClient.getStatus() is not "loggedIn" and allowSendGetLasInfo
-
           lasIntent =
             action: "GET_LAS_INFO"
             component: ""
@@ -54,11 +59,9 @@ class Sevianno
     if @lasClient.getStatus() is not "loggedIn"
       onLogout()
 
-    @registerLasFeedbackHandler Enums.Feedback.LoginSuccess, ()->
-      onLogin()
+    @registerLasFeedbackHandler Enums.Feedback.LoginSuccess, onLogin
 
-    @registerLasFeedbackHandler Enums.Feedback.LogoutSuccess, ()->
-      onLogout()
+    @registerLasFeedbackHandler Enums.Feedback.LogoutSuccess, onLogout
 
     @registerLasFeedbackHandler Enums.Feedback.LoginError, ()->
       alert "Login failed! Message: #{message}"
@@ -66,11 +69,19 @@ class Sevianno
     @registerLasFeedbackHandler Enums.Feedback.LogoutError, ()->
       alert "Logout failed! Message: #{message}"
 
-    @registerIwcCallback "ACTION_LOGOUT", (intent)->
+    @registerIwcCallback "ACTION_LOGOUT", (intent)=>
       if intent.data? and intent.dataType is "text/html"
-        lasClient.logout()
-        console.log "logged out"
-        allowSendGetLasInfo = true
+        try
+          @lasClient.logout()
+          do ()->
+
+
+
+        catch e
+          console.log "Logout error: #{e}"
+        finally
+          console.log "logged out"
+          allowSendGetLasInfo = true
 
     @registerIwcCallback "LAS_INFO", (intent)=>
       allowSendGetLasInfo = false
@@ -158,17 +169,36 @@ class Sevianno
     else
       whereCondition = ""
 
-    @lasInvocationHelper "videoinformation", "getVideoInformationConditional", "", "", whereCondition, "", (status, result)->
-      if status is 200
+    @lasInvocationHelper "videoinformation", "getVideoInformationConditional", "", "", whereCondition, "", (statusCode, result)->
+      if statusCode is 200
         callback result.value
-      else throw new Error "Received status code #{statusCode}"
+      else throw new Error "Received bad status code #{statusCode}"
 
-  getVideoAnnotations: (uri)->
+  getVideoAnnotations: (uri, callback)->
     @getVideoInformation uri, (videoinformation)=>
       $videoinformation = $($.parseXML videoinformation)
-      annotations = for id in $videoinformation.find("semanticRefId")
-          return  $(id).text()
-      throw new Error "#{annotations[0]}"
+      annotations = for a in $videoinformation.find("annotation")
+        $a = $(a)
+        time_in_seconds = do ()->
+          std_min_sek_msek_arr = $a.find('timepoint').text().split ':'
+          std_in_sek = Number(std_min_sek_msek_arr[0].slice 1)*3600
+          min_in_sek = Number(std_min_sek_msek_arr[1])*60
+          all_in_sek = Number(std_min_sek_msek_arr[2])+min_in_sek+std_in_sek
+        [$a.find("semanticRefId").text(), time_in_seconds]
+
+      annotations = _.filter annotations, (a)-> a[0] isnt 'undefined' and _.isNumber(a[1]) and not _.isNaN(a[1])
+      annotationids = _.map annotations, (a)->a[0]
+      @lasInvocationHelper "videoinformation", "getSemanticAnnotationsSet", annotationids, (statusCode, result)->
+        if statusCode is 200
+          annotations = _.zip annotations, result.value
+          annotations = _.map annotations, ([[id, time], text])->
+            return {
+              id: id
+              time: time
+              text: text
+            }
+          callback annotations
+        else throw new Error "Received bad status code #{statusCode}"
 
 
 module.exports = Sevianno
