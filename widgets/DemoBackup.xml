@@ -6,9 +6,9 @@
 </ModulePrefs>
 
   <Content type="html"><![CDATA[
-<link type="text/css" rel="stylesheet" href="http://127.0.0.1:1337/css/sevianno-style.css"></style>
-<link rel="stylesheet" href="http://127.0.0.1:1337/bower/bootstrap/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="http://127.0.0.1:1337/bower/bootstrap/dist/css/bootstrap-theme.min.css">
+<link type="text/css" rel="stylesheet" href="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/css/sevianno-style.css"></style>
+<link rel="stylesheet" href="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/bower/bootstrap/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/bower/bootstrap/dist/css/bootstrap-theme.min.css">
 
 <h2> Video upload tool </h2>
 <div>
@@ -21,17 +21,17 @@
 <div id="sevianno-resize-height"></div>
 <div id="sevianno-login" />
 
-<script src="http://127.0.0.1:1337/bower/jquery/dist/jquery.min.js" type="text/javascript"> </script>
-<script src="http://127.0.0.1:1337/bower/jquery-ui/ui/minified/jquery-ui.min.js" type="text/javascript"> </script>
-<script src="http://127.0.0.1:1337/external/jquery.base64.js/jquery.base64.js" type="text/javascript"> </script>
-<script src="http://127.0.0.1:1337/bower/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"> </script>
-<script src="http://127.0.0.1:1337/js/sevianno-draggable.js"></script>
+<script src="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/bower/jquery/dist/jquery.min.js" type="text/javascript"> </script>
+<script src="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/bower/jquery-ui/ui/minified/jquery-ui.min.js" type="text/javascript"> </script>
+<script src="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/external/jquery.base64.js/jquery.base64.js" type="text/javascript"> </script>
+<script src="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/bower/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"> </script>
+<script src="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/js/sevianno-draggable.js"></script>
 <script src="http://open-app.googlecode.com/files/openapp.js"></script>
 <script src="http://dbis.rwth-aachen.de/gadgets/lib/las/storage.js"></script>
 <script src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
 <script src="http://dbis.rwth-aachen.de/gadgets/lib/las/lasAjaxClient.js"></script>
 <script src="https://rawgithub.com/nicolaescu/widgetbundles/master/libraries/DUIClient.js"></script>
-<script src="http://127.0.0.1:1337/js/demo_backup.js" type="text/javascript"> </script>
+<script src="https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/js/demo_backup.js" type="text/javascript"> </script>
 
 
   ]]></Content>

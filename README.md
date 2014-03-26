@@ -5,8 +5,8 @@ a web application for semantic video annotation developed by the ACIS group, cha
 
 ## Role widgets
 This Repository provides the following widgets.
-* [Upload widget](http://127.0.0.1:1337/upload.xml)
-* [Annotations table](http://127.0.0.1:1337/annotationsTable.xml)
+* [Upload widget](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/upload.xml)
+* [Annotations table](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/annotationsTable.xml)
 
 #Developer
 In order to work on the widget you need `nodejs` and `npm` installed on your system.
@@ -32,7 +32,7 @@ grunt
 
 ## Documentation
 You can find documentation of
-[Documentation](http://127.0.0.1:1337/../doc/index.html)
+[Documentation](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/../doc/index.html)
 
 #Demos
 
