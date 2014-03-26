@@ -1,19 +1,19 @@
-   
+
 var init_dragable = function(){
 
-    if($("#q") == null || typeof $("#q").draggable !== 'function') {
+    if($("#sevianno-resize-height") == null || typeof $("#sevianno-resize-height").draggable !== 'function') {
         //gadgets.util.registerOnLoadHandler(init_dragable);
 		//throw new Error("please include $.ui");
-    }else { 
-	    if($(".sevianno_autoresize") != "undefined"){
-			$(".sevianno_autoresize").height("100%");
+    }else {
+	    if($(".sevianno-autoresize") != "undefined"){
+			$(".sevianno-autoresize").height("100%");
 		}
-        $("#q").draggable({
+        $("#sevianno-resize-height").draggable({
            axis: "y",
             start: function(){
-                var $a = $(".sevianno_autoresize");
+                var $a = $(".sevianno-autoresize");
                 $a.css('bottom', 'inherit');
-				
+
 				var $c = $("#canvas-frame");
                 $c.css('bottom', 'inherit');
                 $(this).css('height',20);
@@ -21,8 +21,8 @@ var init_dragable = function(){
             drag: function( event, ui ) {
                 var height = ui.position.top-15;
                 $("#canvas-frame").css('height', height);
-                if($(".sevianno_autoresize") != "undefined"){
-                    $(".sevianno_autoresize").css('height', height);
+                if($(".sevianno-autoresize") != "undefined"){
+                    $(".sevianno-autoresize").css('height', height);
                 }
 				gadgets.window.adjustHeight();
 
@@ -34,6 +34,6 @@ var init_dragable = function(){
             }
         });
     }
-    
+
 }
 gadgets.util.registerOnLoadHandler(init_dragable);

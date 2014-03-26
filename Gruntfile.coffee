@@ -2,20 +2,31 @@ module.exports = (grunt) ->
 
   # Project configuration.
   grunt.initConfig
+
     defaults:
       replacementUrls:
         development: "http://127.0.0.1:1337/"
         git: "https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/"
         ftp: "http://dbis.rwth-aachen.de/~jahns/role-widgets/sevianno-next/"
 
+    # Generate Documentation
+    codo:
+      options:
+        title: "Sevianno Library Documentation"
+        inputs: ["lib"]
+        output: "doc"
+
+    # Transforms all the nodejs-like files in ./lib to js files in ./widgets/js
     browserify:
       dist:
         files:
           'widgets/js/upload.js': ['lib/upload.coffee']
           'widgets/js/annotation_table.js': ['lib/annotation_table.coffee']
+          'widgets/js/demo_backup.js': ['lib/demo_backup.js']
         options:
           transform: ['coffeeify']
 
+    # Deploy to ftp server
     'ftp-deploy':
       build:
         auth:
@@ -33,6 +44,8 @@ module.exports = (grunt) ->
         src: './widgets'
         dest: '/home/jahns/public_html/role-widgets/sevianno-next'
         exclusions: ['./widgets/bower', './widgets/external']
+
+    # Check if coffee files are well formattet
     coffeelint:
       options:
         "indentation":
@@ -55,17 +68,22 @@ module.exports = (grunt) ->
       widgets: [
         'widgets/**/*.coffee'
         ]
+    # Check if js files are well formattet
+    jshint:
+      all: ['lib/**/*.js']
 
+    # Before commiting we replace urls
     githooks:
       all:
         'pre-commit': 'replaceUrlsProduction'
         'post-commit': 'replaceUrlsDevelopment'
-
+    # Task that waits for changes on the filesystem and then executes tasks
     watch:
       lib:
         files: ['lib/**/*']
-        tasks: ['coffeelint', 'browserify']
+        tasks: ['coffeelint', 'jshint', 'browserify', 'codo']
 
+    # Serve files via http-server
     connect:
       server:
         options:
@@ -83,6 +101,7 @@ module.exports = (grunt) ->
                   res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
                 return next()
             return middlewares
+
     replace:
       mainGit:
         src: ['widgets/*.xml']
@@ -207,14 +226,17 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-browserify'
   grunt.loadNpmTasks 'grunt-concurrent'
+  grunt.loadNpmTasks "grunt-codo"
+  grunt.loadNpmTasks "grunt-contrib-jshint"
+
 
   grunt.registerTask 'replaceUrlsProduction', ['replace:mainGit', 'replace:jsGit', 'replace:cssGit', 'replace:readmeGit']
   grunt.registerTask 'replaceUrlsFtp', ['replace:mainFtp', 'replace:jsFtp', 'replace:cssFtp', 'replace:readmeFtp']
   grunt.registerTask 'replaceUrlsDevelopment', ['replace:maindev', 'replace:jsdev', 'replace:cssdev', 'replace:readmedev']
   grunt.registerTask 'servewidgets', ['connect']
   grunt.registerTask 'save-githooks', ['githooks']
-  grunt.registerTask 'deploy', ['replaceUrlsFtp', 'ftp-deploy:build', 'replaceUrlsDevelopment']
-  grunt.registerTask 'deploysimple', ['replaceUrlsFtp', 'ftp-deploy:simple', 'replaceUrlsDevelopment']
-  grunt.registerTask 'default', ['coffeelint', 'browserify', 'concurrent:default']
+  grunt.registerTask 'deploy', ['browserify', 'codo', 'replaceUrlsFtp', 'ftp-deploy:build', 'replaceUrlsDevelopment']
+  grunt.registerTask 'deploysimple', ['browserify', 'codo', 'replaceUrlsFtp', 'ftp-deploy:simple', 'replaceUrlsDevelopment']
+  grunt.registerTask 'default', ['coffeelint', 'jshint', 'browserify', 'browserify', 'codo', 'concurrent:default']
 
 

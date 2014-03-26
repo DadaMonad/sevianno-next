@@ -1,28 +1,43 @@
 module.exports = (sevianno)->
   lasuser = null
-
+  loginform = '''
+  <div id="loginModal" class="on-logout modal show" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="on-logout modal-dialog">
+        <div class="on-logout modal-content">
+          <div class="modal-header">
+            <img src="http://127.0.0.1:1337/images/sevianno_small.png" alt="Sevianno"></img>
+          </div
+          <div class="modal-body">
+              <form id="sevianno-login-form" class="form col-md-12 center-block">
+                <div class="form-group">
+                  <input type="text" class="form-control input-sm" placeholder="Username">
+                </div>
+                <div class="form-group">
+                  <input type="password" class="form-control input-sm" placeholder="Password">
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-primary btn-sm btn-block">Sign In</button>
+                  <span class="pull-right"><a href="http://vermeer.informatik.rwth-aachen.de:9080/LASRegistration/index.jsp" target="_blank">Register</a></span>
+                  <!--span><a href="http://tosini.informatik.rwth-aachen.de:8134/media/SeViAnno.html">Website</a></span-->
+                  <span>&nbsp;</span>
+                </div>
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  '''
+  $("#sevianno-login").append(loginform).addClass('on-logout')
   $("#sevianno-login-form").submit (event)->
     event.preventDefault()
     lasuser = $(this).find('input[placeholder=Username]').val()
     password = $(this).find('input[placeholder=Password]').val()
     sevianno.login lasuser, password
 
-
-
   sevianno.registerLasFeedbackHandler Enums.Feedback.LogoutSuccess, ()->
-    $(".on-login").each ()->
-      $(@).css('display','none')
-    $(".on-logout").each ()->
-      $(@).css('display','block')
-    $('#loginModal').addClass('show')
+
 
   sevianno.registerLasFeedbackHandler Enums.Feedback.LoginSuccess, ()->
-    $(".on-login").each ()->
-      $(@).css('display', 'block')
-    $(".on-logout").each ()->
-      $(@).css('display', 'none')
-    $('#loginModal').removeClass('show')
-
     sessionId = sevianno.lasClient.getSessionId()
 
     serviceName= "xmldbxs-context-service"

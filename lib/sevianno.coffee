@@ -16,18 +16,48 @@ onLogout = () ->
   thumbnailsURLs = null
   videoNames = Array()
   uploaderNames = Array()
+  $(".on-login").each ()->
+    $(@).css('display','none')
+  $(".on-logout").each ()->
+    $(@).css('display','block')
+  $('#loginModal').addClass('show')
 
 
 onLogin = ()->
+  $(".on-login").each ()->
+    $(@).css('display', 'block')
+  $(".on-logout").each ()->
+    $(@).css('display', 'none')
+  $('#loginModal').removeClass('show')
 
-
+# This is the class that all sevianno tools use. After initialization a
+# - iwc Client is initialized
+# - las Client is initialized
+# - log in / out
+# It provides some convenient wrappers of functions.
 class Sevianno
+  # Initialized lasClient
+  # @example
+  #   lasClient.invoke(service, method, parametersJson, callback)
+  lasClient: ()->
+
+  # Initialized duiClient
+  # @example
+  duiClient: ()->
+
+  # If you need to execute tasks after the initialization of Sevianno add them as arguments
+  # The parameter of the function is the context of Sevianno initialization (this)
+  # @example
+  #   af1 = f2 = function(sevianno){ console.log(sevianno)}
+  #   new Sevianno(f1, f2)
+
+
   constructor: (execute_after_init...)->
     @lasClient = new LasAjaxClient "sevianno", (statusCode, message)=>
       console.log "Sevianno-Next statusCode received las: #{statusCode}/#{if _.isString message then message}"
       @lasHandler[statusCode]?.map (f)->
         f statusCode, message
-
+    # This is also there
     @lasHandler = []
     @iwcHandler = []
 
@@ -106,11 +136,16 @@ class Sevianno
 
   # Register new las feedback handler which listens to $statusCode. It is possible to add multiple handlers
   # for one statusCode. $f is executed with: f(statusCode, message)
+  # @example
+  #   registerLasFeedbackHandler 'LoginSuccess', onLogin
   registerLasFeedbackHandler: (statusCode, f) ->
     @lasHandler[statusCode] ?= []
     @lasHandler[statusCode].push f
 
-
+  # Register new iwc feedback handler which listens to $actionName. It is possible to add multiple handlers
+  # for one action name. $f is executed with: f(statusCode, message)
+  # @example
+  #   registerLasFeedbackHandler('LoginSuccess', function(statusCode, message){})
   registerIwcCallback: (actionName, f)->
     if(_.isArray actionName)
       _.map actionName, (a)=>@registerIwcCallback(a, f)
@@ -118,16 +153,37 @@ class Sevianno
       @iwcHandler[actionName] ?= []
       @iwcHandler[actionName].push f
 
+  # Publish an iwc intent
+  # @example
+  #   intent = {
+  #     "component":"",
+  #     "action":"ACTION_LOGIN",
+  #     "data":"http://example.org",
+  #     "dataType":"text/html",
+  #     "categories":["example1","example2"],
+  #     "flags":["PUBLISH_LOCAL"],
+  #     "extras":{"sessionId":sessionId, "user":user}
+  #   }
+  #   sendIwcIntent(intent)
   sendIwcIntent: (intent)->
       if iwc.util.validateIntent intent
         @duiClient.sendIntent intent
       else
         alert "Intent not valid!"
-
+  # Login to las
+  #
+  # Used by the login widget
   login: (user, password)->
     @lasClient.login(user, password, lasurl, appCode)
 
 
+  # Invoke a service on las
+  # @example
+  #   sevianno.lasInvocationHelper("mpeg7_multimediacontent_service"
+  #                               , "addVideoInformations"
+  #                               , param1
+  #                               , param2
+  #                               , function(result){} )
   lasInvocationHelper: (service, method, parameters..., callback)->
     parametersJson = new Array()
     for p in parameters
@@ -147,7 +203,9 @@ class Sevianno
           throw new  Error "This parameter cannot be determined: #{JSON.stringify p}"
     @lasClient.invoke service, method, parametersJson, callback
 
-
+  # Get all the videoinformation in the database. A 'videoinformation' is a string encoded xml. Parse it e.g.
+  # with jquery. For more information about a 'videoinformation' consult the documentation of the las library.
+  # @see http://dbis.rwth-aachen.de/~jahns/javadocs/videoinformation/
   getVideoInformation: ()->
     # parameters of this function are dynamic, thus check $arguments
     uris = null
@@ -180,6 +238,9 @@ class Sevianno
         callback result.value
       else throw new Error "Received bad status code #{statusCode}"
 
+  # Get all annotations of a video/videos
+  # @return {JSON} An object with properties $uploader, $type, $id, $text
+  #
   getVideoAnnotations: (uri, callback)->
     @getVideoInformation uri, (videoinformation)=>
       $videoinformation = $($.parseXML videoinformation)

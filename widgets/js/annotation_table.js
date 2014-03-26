@@ -166,8 +166,10 @@ sevianno.registerIwcCallback("ACTION_SEND_SEARCH_ANNOTATIONS_AT_TIME", function(
 
 },{"./autologin.coffee":2,"./sevianno.coffee":3,"underscore":4}],2:[function(require,module,exports){
 module.exports = function(sevianno) {
-  var lasuser;
+  var lasuser, loginform;
   lasuser = null;
+  loginform = '<div id="loginModal" class="on-logout modal show" tabindex="-1" role="dialog" aria-hidden="true">\n    <div class="on-logout modal-dialog">\n      <div class="on-logout modal-content">\n        <div class="modal-header">\n          <img src="http://127.0.0.1:1337/images/sevianno_small.png" alt="Sevianno"></img>\n        </div\n        <div class="modal-body">\n            <form id="sevianno-login-form" class="form col-md-12 center-block">\n              <div class="form-group">\n                <input type="text" class="form-control input-sm" placeholder="Username">\n              </div>\n              <div class="form-group">\n                <input type="password" class="form-control input-sm" placeholder="Password">\n              </div>\n              <div class="form-group">\n                <button class="btn btn-primary btn-sm btn-block">Sign In</button>\n                <span class="pull-right"><a href="http://vermeer.informatik.rwth-aachen.de:9080/LASRegistration/index.jsp" target="_blank">Register</a></span>\n                <!--span><a href="http://tosini.informatik.rwth-aachen.de:8134/media/SeViAnno.html">Website</a></span-->\n                <span>&nbsp;</span>\n              </div>\n            </form>\n        </div>\n      </div>\n    </div>\n  </div>';
+  $("#sevianno-login").append(loginform).addClass('on-logout');
   $("#sevianno-login-form").submit(function(event) {
     var password;
     event.preventDefault();
@@ -175,24 +177,9 @@ module.exports = function(sevianno) {
     password = $(this).find('input[placeholder=Password]').val();
     return sevianno.login(lasuser, password);
   });
-  sevianno.registerLasFeedbackHandler(Enums.Feedback.LogoutSuccess, function() {
-    $(".on-login").each(function() {
-      return $(this).css('display', 'none');
-    });
-    $(".on-logout").each(function() {
-      return $(this).css('display', 'block');
-    });
-    return $('#loginModal').addClass('show');
-  });
+  sevianno.registerLasFeedbackHandler(Enums.Feedback.LogoutSuccess, function() {});
   return sevianno.registerLasFeedbackHandler(Enums.Feedback.LoginSuccess, function() {
     var intent, methodName, parametersAsJSONArray, serviceName, sessionId;
-    $(".on-login").each(function() {
-      return $(this).css('display', 'block');
-    });
-    $(".on-logout").each(function() {
-      return $(this).css('display', 'none');
-    });
-    $('#loginModal').removeClass('show');
     sessionId = sevianno.lasClient.getSessionId();
     serviceName = "xmldbxs-context-service";
     methodName = "instantiateContext";
@@ -262,12 +249,31 @@ onLogout = function() {
   videoURLs = null;
   thumbnailsURLs = null;
   videoNames = Array();
-  return uploaderNames = Array();
+  uploaderNames = Array();
+  $(".on-login").each(function() {
+    return $(this).css('display', 'none');
+  });
+  $(".on-logout").each(function() {
+    return $(this).css('display', 'block');
+  });
+  return $('#loginModal').addClass('show');
 };
 
-onLogin = function() {};
+onLogin = function() {
+  $(".on-login").each(function() {
+    return $(this).css('display', 'block');
+  });
+  $(".on-logout").each(function() {
+    return $(this).css('display', 'none');
+  });
+  return $('#loginModal').removeClass('show');
+};
 
 Sevianno = (function() {
+  Sevianno.prototype.lasClient = function() {};
+
+  Sevianno.prototype.duiClient = function() {};
+
   function Sevianno() {
     var execute_after_init, onFinish;
     execute_after_init = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
