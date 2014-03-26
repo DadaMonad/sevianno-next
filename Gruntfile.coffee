@@ -23,6 +23,7 @@ module.exports = (grunt) ->
           'widgets/js/upload.js': ['lib/upload.coffee']
           'widgets/js/annotation_table.js': ['lib/annotation_table.coffee']
           'widgets/js/demo_backup.js': ['lib/demo_backup.js']
+          'widgets/js/demo_upload_widget.js': ['lib/demo_upload_widget.js']
         options:
           transform: ['coffeeify']
 
@@ -235,8 +236,8 @@ module.exports = (grunt) ->
   grunt.registerTask 'replaceUrlsDevelopment', ['replace:maindev', 'replace:jsdev', 'replace:cssdev', 'replace:readmedev']
   grunt.registerTask 'servewidgets', ['connect']
   grunt.registerTask 'save-githooks', ['githooks']
-  grunt.registerTask 'deploy', ['browserify', 'codo', 'replaceUrlsFtp', 'ftp-deploy:build', 'replaceUrlsDevelopment']
-  grunt.registerTask 'deploysimple', ['browserify', 'codo', 'replaceUrlsFtp', 'ftp-deploy:simple', 'replaceUrlsDevelopment']
+  grunt.registerTask 'deploy_all', ['browserify', 'codo', 'replaceUrlsFtp', 'ftp-deploy:build', 'replaceUrlsDevelopment']
+  grunt.registerTask 'deploy', ['browserify', 'codo', 'replaceUrlsFtp', 'ftp-deploy:simple', 'replaceUrlsDevelopment']
   grunt.registerTask 'default', ['coffeelint', 'jshint', 'browserify', 'browserify', 'codo', 'concurrent:default']
 
 
