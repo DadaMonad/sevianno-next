@@ -9,8 +9,8 @@ credentials = do ()->
   hash = $.base64.encode("#{user.toLowerCase()}:#{password}")
   return "Basic " + hash
 
-f = ()->
-  $.ajax
+
+$.ajax
       url: 'http://137.226.58.21:9080/ClViTra_2.0/rest/auth'
       type: "GET"
       dataType: "json"
@@ -22,7 +22,7 @@ f = ()->
       error: (err)->
         console.log "error: #{JSON.stringify(err)}"
 
-  $.ajax
+$.ajax
     url: "http://137.226.58.21:9080/ClViTra_2.0/rest/videos"
     type: "GET"
     dataType: "json"
@@ -32,9 +32,19 @@ f = ()->
     error: (err)->
       console.log "error vid: #{JSON.stringify(err)}"
 
+vidCounter = 0
+vidCounterUploaded = 0
+vidCounterTranscoded = 0
+
 sevianno.registerIwcCallback "ADDED_TO_MPEG7", (intent)->
   [name, videourl, thumbnail] = intent.extras.videoDetails.split("%")
   date = dateFormat(new Date(), "ddd mmm dd HH:mm:ss Z yyyy")
+  vidCounterTranscoded++
+  $("#vidnumber#{vidCounterTranscoded}").text("Uploaded: #{name}").click ()->
+    window.open("#{videourl}",'_blank')
+
+
+  ###
   videoinfo_meat = """
     <?xml version='1.0' standalone='yes'?>
     <video>
@@ -52,7 +62,7 @@ sevianno.registerIwcCallback "ADDED_TO_MPEG7", (intent)->
     """
   sevianno.lasInvocationHelper "mpeg7_multimediacontent_service", "addVideoInformations", videoinfo_meat, (v)->
     console.log "We transcoded over #{v}!!!!!!!!!!!"
-
+  ###
 g = ()->
   date = dateFormat(new Date(), "ddd mmm dd HH:mm:ss Z yyyy")
   videoinfo_meat = """
@@ -95,7 +105,14 @@ g = ()->
   sevianno.lasInvocationHelper "mpeg7_multimediacontent_service", "addVideoInformations", videoinfo_meat, (v)->
     console.log "We transcoded over #{v}!!!!!!!!!!!"
 
-$("form").submit (event)->
+
+
+
+
+$("#video-upload-form").submit (event)->
+    vidCounter++
+    $("#vids").append("<button id='vidnumber#{vidCounter}' class='btn btn-default info' style='width: 100%'>Uploading..</button>")
+
     event.preventDefault()
     formData = new FormData($('form')[0])
 
@@ -106,11 +123,11 @@ $("form").submit (event)->
       contentType: false
       data: formData
       success: (data)->
+        vidCounterUploaded++
+        $("#vidnumber#{vidCounterUploaded}").text("Transcoding..")
         console.log "success upload: #{JSON.stringify(data)}"
       error: (err)->
+        vidCounterUploaded++
+        $("#vidnumber#{vidCounterUploaded}").text("Upload Failed")
         console.log "error upload: #{JSON.stringify(err)}"
 
-
-$('button').click ()->
-  g()
-  console.log dateFormat(new Date(), "ddd mmm dd HH:mm:ss Z yyyy")

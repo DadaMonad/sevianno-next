@@ -310,7 +310,7 @@ module.exports = Sevianno;
 
 
 },{"underscore":4}],2:[function(require,module,exports){
-var Sevianno, credentials, dateFormat, f, g, sevianno;
+var Sevianno, credentials, dateFormat, g, sevianno, vidCounter, vidCounterTranscoded, vidCounterUploaded;
 
 Sevianno = require("./sevianno.coffee");
 
@@ -326,57 +326,82 @@ credentials = (function() {
   return "Basic " + hash;
 })();
 
-f = function() {
-  $.ajax({
-    url: 'http://137.226.58.21:9080/ClViTra_2.0/rest/auth',
-    type: "GET",
-    dataType: "json",
-    beforeSend: function(xhr) {
-      return xhr.setRequestHeader('Authorization', credentials);
-    },
-    success: function(data) {
-      return console.log("success: " + (JSON.stringify(data)));
-    },
-    error: function(err) {
-      return console.log("error: " + (JSON.stringify(err)));
-    }
-  });
-  return $.ajax({
-    url: "http://137.226.58.21:9080/ClViTra_2.0/rest/videos",
-    type: "GET",
-    dataType: "json",
-    success: function(data) {
-      return console.log("success vid: " + (JSON.stringify(data)));
-    },
-    error: function(err) {
-      return console.log("error vid: " + (JSON.stringify(err)));
-    }
-  });
-};
-/*
+$.ajax({
+  url: 'http://137.226.58.21:9080/ClViTra_2.0/rest/auth',
+  type: "GET",
+  dataType: "json",
+  beforeSend: function(xhr) {
+    return xhr.setRequestHeader('Authorization', credentials);
+  },
+  success: function(data) {
+    return console.log("success: " + (JSON.stringify(data)));
+  },
+  error: function(err) {
+    return console.log("error: " + (JSON.stringify(err)));
+  }
+});
+
+$.ajax({
+  url: "http://137.226.58.21:9080/ClViTra_2.0/rest/videos",
+  type: "GET",
+  dataType: "json",
+  success: function(data) {
+    return console.log("success vid: " + (JSON.stringify(data)));
+  },
+  error: function(err) {
+    return console.log("error vid: " + (JSON.stringify(err)));
+  }
+});
+
+vidCounter = 0;
+
+vidCounterUploaded = 0;
+
+vidCounterTranscoded = 0;
+
 sevianno.registerIwcCallback("ADDED_TO_MPEG7", function(intent) {
-  var date, name, thumbnail, videoinfo_meat, videourl, _ref;
+  var date, name, thumbnail, videourl, _ref;
   _ref = intent.extras.videoDetails.split("%"), name = _ref[0], videourl = _ref[1], thumbnail = _ref[2];
   date = dateFormat(new Date(), "ddd mmm dd HH:mm:ss Z yyyy");
-  date = "Wed Mar 26 01:57:29 CET 2014"
-  videoinfo_meat = "<?xml version='1.0' standalone='yes' ?><video><title>" + name + "</title><creator>ClViTra</creator><video_uri>" + videourl + "</video_uri><created_at>" + date + "</created_at><thumb_image>" + thumbnail + "</thumb_image><keywords><keyword>ClViTra transcoded</keyword></keywords><annotations></annotations></video>";
-  return sevianno.lasInvocationHelper("mpeg7_multimediacontent_service", "addVideoInformations", videoinfo_meat, function(v) {
-    return console.log("We transcoded over " + v + "!!!!!!!!!!!");
+  vidCounterTranscoded++;
+  return $("#vidnumber" + vidCounterTranscoded).text("Uploaded: " + name).click(function() {
+    return window.open("" + videourl, '_blank');
   });
-});*/
+
+  /*
+  videoinfo_meat = """
+    <?xml version='1.0' standalone='yes'?>
+    <video>
+    <title>#{name}</title>
+    <creator>ClViTra</creator>
+    <video_uri>#{videourl}</video_uri>
+    <created_at>#{date}</created_at>
+    <thumb_image>#{thumbnail}</thumb_image>
+    <keywords>
+      <keyword>ClViTra transcoded</keyword>
+    </keywords>
+    <annotations>
+    </annotations>
+    </video>
+    """
+  sevianno.lasInvocationHelper "mpeg7_multimediacontent_service", "addVideoInformations", videoinfo_meat, (v)->
+    console.log "We transcoded over #{v}!!!!!!!!!!!"
+   */
+});
 
 g = function() {
   var date, videoinfo_meat;
   date = dateFormat(new Date(), "ddd mmm dd HH:mm:ss Z yyyy");
-  date = "Wed Mar 26 01:57:29 CET 2014"
-  videoinfo_meat = "<?xml version='1.0' standalone='yes'?><video><title>TheName</title><creator>ClViTra</creator><video_uri>http://videourl</video_uri><created_at>" + date + "</created_at><thumb_image>http://dtrn</thumb_image><keywords><keyword>ClViTra transcoded</keyword></keywords><annotations></annotations></video>";
+  videoinfo_meat = "    <?xml version='1.0' standalone='yes'?>\n<video>\n			<title>awesomevideo</title><genre>leGenre</genre> <qr_code>some qr code data</qr_code> <creator>poweruser</creator><video_uri>file:///mnt/sdcard/Pictures/awesome</video_uri> <created_at>" + date + "</created_at>\n				<location>\n				<latitude>60.2</latitude>\n				<longitude>24.9</longitude>\n				<altitude>37.0</altitude>\n				</location>\n				<thumb_image>image_url</thumb_image>\n				<keywords>\n				<keyword>sampleKeyword</keyword>\n				<keyword>testKeyword</keyword>\n				</keywords>\n				<annotations>\n					<annotation>\n					<text>Need</text>\n				<x_position>0.22109374</x_position>\n					<y_position>0.17335473</y_position>\n				<start_time>00:00:04:000</start_time>\n				<duration>3000</duration>\n				</annotation>\n				<annotation>\n				<text>play with</text>\n				<x_position>0.440625</x_position>\n				<y_position>0.4012841</y_position>\n				<start_time>00:00:04:000</start_time>\n				<duration>3000</duration>\n				</annotation>\n				</annotations>\n			</video>";
   return sevianno.lasInvocationHelper("mpeg7_multimediacontent_service", "addVideoInformations", videoinfo_meat, function(v) {
     return console.log("We transcoded over " + v + "!!!!!!!!!!!");
   });
 };
 
-$("form").submit(function(event) {
+$("#video-upload-form").submit(function(event) {
   var formData;
+  vidCounter++;
+  $("#vids").append("<button id='vidnumber" + vidCounter + "' class='btn btn-default info' style='width: 100%'>Uploading</button>");
   event.preventDefault();
   formData = new FormData($('form')[0]);
   return $.ajax({
@@ -386,17 +411,16 @@ $("form").submit(function(event) {
     contentType: false,
     data: formData,
     success: function(data) {
+      vidCounterUploaded++;
+      $("#vidnumber" + vidCounterUploaded).text("Transcoding");
       return console.log("success upload: " + (JSON.stringify(data)));
     },
     error: function(err) {
+      vidCounterUploaded++;
+      $("#vidnumber" + vidCounterUploaded).text("Upload Failed");
       return console.log("error upload: " + (JSON.stringify(err)));
     }
   });
-});
-
-$('button').click(function() {
-  g();
-  return console.log(dateFormat(new Date(), "ddd mmm dd HH:mm:ss Z yyyy"));
 });
 
 
