@@ -1,66 +1,252 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var Sevianno, sevianno, _;
+var Sevianno, autologin_extension, makeResponsiveTable, rewriteSeviannoTableContext, sevianno, _;
 
 Sevianno = require("./sevianno.coffee");
 
 _ = require("underscore");
 
-sevianno = new Sevianno();
+autologin_extension = require("./autologin.coffee");
 
-sevianno.registerIwcCallback("ACTION_OPEN", function(intent) {
-  var $annotation_table;
-  $annotation_table = $($(".sevianno-annotation-table").find("tbody"));
-  $annotation_table.empty();
-  $annotation_table.append("<tr class='info'><td>Loading...</td><td></td></tr>");
-  sevianno.getVideoAnnotations(intent.extras.videoUrl, function(annotations) {
-    var annotation, atime, thetime, _i, _len;
-    $annotation_table.empty();
-    for (_i = 0, _len = annotations.length; _i < _len; _i++) {
-      annotation = annotations[_i];
-      atime = annotation.time;
-      thetime = null;
-      if (atime >= 60) {
-        thetime = "" + (Math.floor(atime / 60)) + " min " + (atime % 60) + " sec";
-      } else {
-        thetime = "" + (atime % 60) + " sec";
+sevianno = new Sevianno(autologin_extension);
+
+makeResponsiveTable = function() {
+  if ($(window).width() < 290) {
+    $(".sevianno-annotation-table tr th:nth-child(2)").css('display', 'none');
+    $(".sevianno-annotation-table tr td:nth-child(2)").each(function() {
+      return $(this).css('display', 'none');
+    });
+    $(".sevianno-annotation-table tr th:nth-child(3)").css('display', 'none');
+    return $(".sevianno-annotation-table tr td:nth-child(3)").each(function() {
+      return $(this).css('display', 'none');
+    });
+  } else if ($(window).width() < 390) {
+    $(".sevianno-annotation-table tr th:nth-child(2)").css('display', 'none');
+    $(".sevianno-annotation-table tr td:nth-child(2)").each(function() {
+      return $(this).css('display', 'none');
+    });
+    $(".sevianno-annotation-table tr th:nth-child(3)").css('display', 'table-cell');
+    return $(".sevianno-annotation-table tr td:nth-child(3)").each(function() {
+      return $(this).css('display', 'table-cell');
+    });
+  } else {
+    $(".sevianno-annotation-table tr th:nth-child(3)").css('display', 'table-cell');
+    $(".sevianno-annotation-table tr td:nth-child(3)").each(function() {
+      return $(this).css('display', 'table-cell');
+    });
+    $(".sevianno-annotation-table tr th:nth-child(2)").css('display', 'table-cell');
+    return $(".sevianno-annotation-table tr td:nth-child(2)").each(function() {
+      return $(this).css('display', 'table-cell');
+    });
+  }
+};
+
+makeResponsiveTable();
+
+$(window).resize(makeResponsiveTable);
+
+rewriteSeviannoTableContext = function() {
+  makeResponsiveTable();
+  return $('.sevianno-annotation-entry').contextMenu('sevianno-annotation-entry-context', {
+    'Edit': {
+      klass: "annotation-entry-edit-context",
+      click: function(element) {
+        var intent, refAnnotation;
+        refAnnotation = $.parseJSON($(element[0]).attr('annotationvalue'));
+        intent = {
+          "component": "",
+          "action": "ACTION_UPDATE_ANNOTATIONS",
+          "data": "www.example.org",
+          "dataType": "text/html",
+          "flags": ["PUBLISH_GLOBAL"],
+          "extras": {
+            "index": 0,
+            "semantic": refAnnotation.id,
+            "type": refAnnotation.type
+          }
+        };
+        sevianno.duiClient.sendIntent(intent);
+        intent = {
+          "component": "",
+          "action": "ACTION_PAUSE",
+          "data": "www.example.org",
+          "dataType": "text/html",
+          "flags": ["PUBLISH_GLOBAL"]
+        };
+        return sevianno.duiClient.sendIntent(intent);
       }
-      $annotation_table.append("<tr class='sevianno-annotation-entry' annotationvalue='" + (JSON.stringify(annotation)) + "'><td>" + annotation.text + "</td><td>" + thetime + "</td></tr>");
+    },
+    'Delete': {
+      klass: "annotation-entry-delete-context",
+      click: function(element) {
+        var intent, refAnnotation;
+        refAnnotation = $.parseJSON($(element[0]).attr('annotationvalue'));
+        intent = {
+          "component": "",
+          "action": "ACTION_DELETE_ANNOTATIONS",
+          "data": "www.example.org",
+          "dataType": "text/html",
+          "flags": ["PUBLISH_GLOBAL"],
+          "extras": {
+            "index": "0",
+            "semantic": refAnnotation.id
+          }
+        };
+        return sevianno.duiClient.sendIntent(intent);
+      }
     }
-    return $(".sevianno-annotation-entry").each(function() {
-      var annotationtime, iwcintent;
-      annotationtime = $.parseJSON($(this).attr("annotationvalue")).time;
-      iwcintent = {
-        "component": "",
-        "action": "ACTION_SEEK",
-        "data": intent.extras.videoUrl,
-        "dataType": "video/mp4",
-        "flags": ["PUBLISH_GLOBAL"],
-        "extras": {
-          "position": annotationtime
+  });
+};
+
+sevianno.registerIwcCallback(["ACTION_OPEN", "ACTION_ADD_NEW_ANNOTATION_TO_TABLE", "ACTION_END_TABLE_MODIFICATION"], (function() {
+  var video_uri;
+  video_uri = null;
+  return function(intent) {
+    var $annotation_table;
+    if (intent.action === "ACTION_OPEN") {
+      video_uri = intent.extras.videoUrl;
+    }
+    $annotation_table = $($(".sevianno-annotation-table").find("tbody"));
+    $annotation_table.empty();
+    $annotation_table.append("<tr class='info'><td>Loading...</td><td></td><td></td></tr>");
+    sevianno.getVideoAnnotations(video_uri, function(annotations) {
+      var annotation, atime, thetime, _i, _len;
+      $annotation_table.empty();
+      for (_i = 0, _len = annotations.length; _i < _len; _i++) {
+        annotation = annotations[_i];
+        atime = annotation.time;
+        thetime = null;
+        if (atime >= 60) {
+          thetime = "" + (Math.floor(atime / 60)) + " min " + (atime % 60) + " sec";
+        } else {
+          thetime = "" + (atime % 60) + " sec";
         }
-      };
-      return $(this).click(function() {
-        return sevianno.sendIwcIntent(iwcintent);
+        $annotation_table.append("<tr class='sevianno-annotation-entry' annotationvalue='" + (JSON.stringify(annotation)) + "'><td>" + annotation.text + "</td><td>" + annotation.uploader + "</td><td>" + thetime + "</td></tr>");
+      }
+      rewriteSeviannoTableContext();
+      return $(".sevianno-annotation-entry").each(function() {
+        var annotationtime, iwcintent;
+        annotationtime = $.parseJSON($(this).attr("annotationvalue")).time;
+        iwcintent = {
+          "component": "",
+          "action": "ACTION_SEEK",
+          "data": video_uri,
+          "dataType": "video/mp4",
+          "flags": ["PUBLISH_GLOBAL"],
+          "extras": {
+            "position": annotationtime
+          }
+        };
+        return $(this).click(function() {
+          return sevianno.sendIwcIntent(iwcintent);
+        });
       });
     });
-  });
-  return sevianno.getVideoInformation(intent.extras.videoUrl, function(videoinformation) {
-    return console.log("VideoInformation: " + videoinformation);
+    return sevianno.getVideoInformation(video_uri, function(videoinformation) {
+      return console.log("VideoInformation: " + videoinformation);
+    });
+  };
+})());
+
+sevianno.registerIwcCallback("ACTION_SEND_SEARCH_ANNOTATIONS_AT_TIME", function(intent) {
+  var $annotation_table, currentvideotime, mm, sek, _ref;
+  $annotation_table = $($(".sevianno-annotation-table").find("tbody"));
+  _ref = intent.extras.time.split(":"), mm = _ref[0], sek = _ref[1];
+  currentvideotime = Number(mm) * 60 + Number(sek);
+  return $(".sevianno-annotation-table").find(".sevianno-annotation-entry").each(function() {
+    var mytime;
+    mytime = $.parseJSON($(this).attr("annotationvalue")).time;
+    if (mytime === currentvideotime) {
+      return $(this).addClass("success");
+    } else {
+      return $(this).removeClass("success");
+    }
   });
 });
 
 
-},{"./sevianno.coffee":2,"underscore":3}],2:[function(require,module,exports){
-var Sevianno, TAG, allowSendGetLasInfo, appCode, lasurl, onLogin, onLogout, thumbnailsURLs, uploaderNames, videoNames, videoURLs, _,
+},{"./autologin.coffee":2,"./sevianno.coffee":3,"underscore":4}],2:[function(require,module,exports){
+module.exports = function(sevianno) {
+  var lasuser;
+  lasuser = null;
+  $("#sevianno-login-form").submit(function(event) {
+    var password;
+    event.preventDefault();
+    lasuser = $(this).find('input[placeholder=Username]').val();
+    password = $(this).find('input[placeholder=Password]').val();
+    return sevianno.login(lasuser, password);
+  });
+  sevianno.registerLasFeedbackHandler(Enums.Feedback.LogoutSuccess, function() {
+    $(".on-login").each(function() {
+      return $(this).css('display', 'none');
+    });
+    $(".on-logout").each(function() {
+      return $(this).css('display', 'block');
+    });
+    return $('#loginModal').addClass('show');
+  });
+  return sevianno.registerLasFeedbackHandler(Enums.Feedback.LoginSuccess, function() {
+    var intent, methodName, parametersAsJSONArray, serviceName, sessionId;
+    $(".on-login").each(function() {
+      return $(this).css('display', 'block');
+    });
+    $(".on-logout").each(function() {
+      return $(this).css('display', 'none');
+    });
+    $('#loginModal').removeClass('show');
+    sessionId = sevianno.lasClient.getSessionId();
+    serviceName = "xmldbxs-context-service";
+    methodName = "instantiateContext";
+    parametersAsJSONArray = new Array();
+    parametersAsJSONArray[0] = {
+      "type": "String",
+      "value": "vc"
+    };
+    parametersAsJSONArray[1] = {
+      "type": "String",
+      "value": "v2"
+    };
+    sevianno.lasClient.invoke(serviceName, methodName, parametersAsJSONArray, function() {});
+
+    /*
+    		user = lasClient.getUsername();
+    
+    intent =
+      "component":""
+      "action":"ACTION_LOGIN"
+      "data":"http://example.org"
+      "dataType":"text/html"
+      "categories":["example1","example2"]
+      "flags":["PUBLISH_LOCAL"]
+      "extras":{"sessionId":sessionId, "user":user}
+    
+    sevianno.sendIwcIntent(intent)
+     */
+    intent = {
+      "component": "",
+      "action": "LAS_INFO",
+      "data": "",
+      "dataType": "",
+      "extras": {
+        "session": sessionId,
+        "userName": lasuser
+      }
+    };
+    return sevianno.duiClient.publishToUser(intent);
+  });
+};
+
+
+},{}],3:[function(require,module,exports){
+var Sevianno, allowSendGetLasInfo, appCode, lasurl, lasuser, onLogin, onLogout, thumbnailsURLs, uploaderNames, videoNames, videoURLs, _,
   __slice = [].slice;
 
 _ = require("underscore");
 
-TAG = "Video List";
-
 lasurl = "http://steen.informatik.rwth-aachen.de:9914/";
 
-appCode = "vc";
+appCode = "sevianno-next";
+
+lasuser = null;
 
 allowSendGetLasInfo = true;
 
@@ -76,21 +262,15 @@ onLogout = function() {
   videoURLs = null;
   thumbnailsURLs = null;
   videoNames = Array();
-  uploaderNames = Array();
-  return $(".on-login").each(function() {
-    return $(this).css('display', 'none');
-  });
+  return uploaderNames = Array();
 };
 
-onLogin = function() {
-  return $(".on-login").each(function() {
-    return $(this).css('display', 'block');
-  });
-};
+onLogin = function() {};
 
 Sevianno = (function() {
   function Sevianno() {
-    var onFinish;
+    var execute_after_init, onFinish;
+    execute_after_init = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     this.lasClient = new LasAjaxClient("sevianno", (function(_this) {
       return function(statusCode, message) {
         var _ref;
@@ -109,13 +289,9 @@ Sevianno = (function() {
         console.log("Sevianno-Next intent received iwc: " + (JSON.stringify(intent)));
         console.log("" + (JSON.stringify(_this.iwcHandler)));
         return (_ref = _this.iwcHandler[intent.action]) != null ? _ref.map(function(f) {
-          var e;
-          try {
+          return setTimeout(function() {
             return f(intent);
-          } catch (_error) {
-            e = _error;
-            return console.log(e);
-          }
+          }, 0);
         }) : void 0;
       };
     })(this));
@@ -194,6 +370,13 @@ Sevianno = (function() {
         }
       };
     })(this));
+    if ((execute_after_init != null)) {
+      _.map(execute_after_init, (function(_this) {
+        return function(f) {
+          return f(_this);
+        };
+      })(this));
+    }
   }
 
   Sevianno.prototype.registerLasFeedbackHandler = function(statusCode, f) {
@@ -206,10 +389,18 @@ Sevianno = (function() {
 
   Sevianno.prototype.registerIwcCallback = function(actionName, f) {
     var _base;
-    if ((_base = this.iwcHandler)[actionName] == null) {
-      _base[actionName] = [];
+    if (_.isArray(actionName)) {
+      return _.map(actionName, (function(_this) {
+        return function(a) {
+          return _this.registerIwcCallback(a, f);
+        };
+      })(this));
+    } else {
+      if ((_base = this.iwcHandler)[actionName] == null) {
+        _base[actionName] = [];
+      }
+      return this.iwcHandler[actionName].push(f);
     }
-    return this.iwcHandler[actionName].push(f);
   };
 
   Sevianno.prototype.sendIwcIntent = function(intent) {
@@ -218,6 +409,10 @@ Sevianno = (function() {
     } else {
       return alert("Intent not valid!");
     }
+  };
+
+  Sevianno.prototype.login = function(user, password) {
+    return this.lasClient.login(user, password, lasurl, appCode);
   };
 
   Sevianno.prototype.lasInvocationHelper = function() {
@@ -318,9 +513,19 @@ Sevianno = (function() {
           if (statusCode === 200) {
             annotations = _.zip(annotations, result.value);
             annotations = _.map(annotations, function(_arg) {
-              var id, text, time, _ref;
+              var i, id, rest, text, time, type, uploader, _i, _ref, _ref1, _ref2;
               (_ref = _arg[0], id = _ref[0], time = _ref[1]), text = _arg[1];
+              _ref1 = id.split("_"), type = _ref1[0], rest = _ref1[1];
+              uploader = null;
+              for (i = _i = 1, _ref2 = rest.length; 1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 1 <= _ref2 ? ++_i : --_i) {
+                if (!_.isNaN(Number(rest[i]))) {
+                  uploader = String.prototype.slice.call(rest, 0, i);
+                  break;
+                }
+              }
               return {
+                uploader: uploader,
+                type: type,
                 id: id,
                 time: time,
                 text: text
@@ -342,7 +547,7 @@ Sevianno = (function() {
 module.exports = Sevianno;
 
 
-},{"underscore":3}],3:[function(require,module,exports){
+},{"underscore":4}],4:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

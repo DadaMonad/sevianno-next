@@ -1,8 +1,9 @@
 _ = require "underscore"
 
-TAG = "Video List"
 lasurl = "http://steen.informatik.rwth-aachen.de:9914/"
-appCode = "vc"
+appCode = "sevianno-next"
+lasuser = null
+
 allowSendGetLasInfo = true
 
 videoURLs = null
@@ -16,15 +17,12 @@ onLogout = () ->
   videoNames = Array()
   uploaderNames = Array()
 
-  $(".on-login").each ()->
-    $(@).css('display','none')
 
 onLogin = ()->
-  $(".on-login").each ()->
-    $(@).css('display', 'block')
+
 
 class Sevianno
-  constructor: ()->
+  constructor: (execute_after_init...)->
     @lasClient = new LasAjaxClient "sevianno", (statusCode, message)=>
       console.log "Sevianno-Next statusCode received las: #{statusCode}/#{if _.isString message then message}"
       @lasHandler[statusCode]?.map (f)->
@@ -38,9 +36,9 @@ class Sevianno
       console.log "Sevianno-Next intent received iwc: #{JSON.stringify(intent)}"
       console.log "#{JSON.stringify(@iwcHandler)}"
       @iwcHandler[intent.action]?.map (f)->
-        try f intent
-        catch e then console.log e
-
+        setTimeout ()->
+            f intent
+          , 0
     onFinish = (intent)=>
         if @lasClient.getStatus() is not "loggedIn" and allowSendGetLasInfo
           lasIntent =
@@ -74,9 +72,6 @@ class Sevianno
         try
           @lasClient.logout()
           do ()->
-
-
-
         catch e
           console.log "Logout error: #{e}"
         finally
@@ -105,6 +100,10 @@ class Sevianno
 
         @duiClient.publishToUser(resIntent)
 
+    if(execute_after_init?)
+      _.map execute_after_init, (f)=>
+        f(@)
+
   # Register new las feedback handler which listens to $statusCode. It is possible to add multiple handlers
   # for one statusCode. $f is executed with: f(statusCode, message)
   registerLasFeedbackHandler: (statusCode, f) ->
@@ -113,14 +112,21 @@ class Sevianno
 
 
   registerIwcCallback: (actionName, f)->
-    @iwcHandler[actionName] ?= []
-    @iwcHandler[actionName].push f
+    if(_.isArray actionName)
+      _.map actionName, (a)=>@registerIwcCallback(a, f)
+    else
+      @iwcHandler[actionName] ?= []
+      @iwcHandler[actionName].push f
 
   sendIwcIntent: (intent)->
       if iwc.util.validateIntent intent
         @duiClient.sendIntent intent
       else
         alert "Intent not valid!"
+
+  login: (user, password)->
+    @lasClient.login(user, password, lasurl, appCode)
+
 
   lasInvocationHelper: (service, method, parameters..., callback)->
     parametersJson = new Array()
@@ -192,7 +198,17 @@ class Sevianno
         if statusCode is 200
           annotations = _.zip annotations, result.value
           annotations = _.map annotations, ([[id, time], text])->
+            # TODO: bad
+            [type, rest] = id.split "_"
+            #type = String.prototype.slice.call(type, 8,-4)
+            uploader = null
+            for i in [1..(rest.length)]
+              if not _.isNaN(Number(rest[i]))
+                uploader = String.prototype.slice.call(rest, 0, i)
+                break
             return {
+              uploader: uploader
+              type: type
               id: id
               time: time
               text: text

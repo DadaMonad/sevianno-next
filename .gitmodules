@@ -1,3 +1,6 @@
 [submodule "widgets/external/jquery.base64.js"]
 	path = widgets/external/jquery.base64.js
 	url = https://github.com/yckart/jquery.base64.js.git
+[submodule "widgets/external/jquery-contextMenu"]
+	path = widgets/external/jquery-contextMenu
+	url = https://github.com/arnklint/jquery-contextMenu

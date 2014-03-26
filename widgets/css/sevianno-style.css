@@ -11,3 +11,27 @@
 .on-login {
   display: none;
 }
+
+/* all context menus have this class */
+.context-menu {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+
+  background-color: #f2f2f2;
+  border: 1px solid #999;
+
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+.context-menu a {
+  display: block;
+  padding: 3px;
+  text-decoration: none;
+  color: #333;
+}
+.context-menu a:hover {
+  background-color: #666;
+  color: white;
+}

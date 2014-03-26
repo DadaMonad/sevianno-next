@@ -25,6 +25,14 @@ module.exports = (grunt) ->
         src: './widgets'
         dest: '/home/jahns/public_html/role-widgets/sevianno-next'
         exclusions: []
+      simple:
+        auth:
+          host: 'manet.informatik.rwth-aachen.de'
+          port: 21
+          #authKey: 'key1'
+        src: './widgets'
+        dest: '/home/jahns/public_html/role-widgets/sevianno-next'
+        exclusions: ['./widgets/bower', './widgets/external']
     coffeelint:
       options:
         "indentation":
@@ -205,7 +213,8 @@ module.exports = (grunt) ->
   grunt.registerTask 'replaceUrlsDevelopment', ['replace:maindev', 'replace:jsdev', 'replace:cssdev', 'replace:readmedev']
   grunt.registerTask 'servewidgets', ['connect']
   grunt.registerTask 'save-githooks', ['githooks']
-  grunt.registerTask 'deploy', ['replaceUrlsFtp', 'ftp-deploy', 'replaceUrlsDevelopment']
+  grunt.registerTask 'deploy', ['replaceUrlsFtp', 'ftp-deploy:build', 'replaceUrlsDevelopment']
+  grunt.registerTask 'deploysimple', ['replaceUrlsFtp', 'ftp-deploy:simple', 'replaceUrlsDevelopment']
   grunt.registerTask 'default', ['coffeelint', 'browserify', 'concurrent:default']
 
 
