@@ -19,44 +19,88 @@
       Index
     </a>
     &raquo;
-    <span class='title'>lib\upload.coffee</span>
+    <span class='title'>lib</span>
+    &raquo;
+    <span class='title'>sevianno.coffee</span>
   </div>
 </div>
     <div id='content'>
       <h1>
         File:
-        upload.coffee
+        sevianno.coffee
       </h1>
       <table class='box'>
         <tr>
           <td>Defined in:</td>
           <td>lib</td>
         </tr>
+        <tr>
+          <td>
+            Classes:
+          </td>
+          <td>
+            <a href='../../class/Sevianno.html'>
+              Sevianno
+            </a>
+          </td>
+        </tr>
       </table>
       <h2>Variables Summary</h2>
       <dl class='constants'>
-  <dt id='vidCounter-variable'>
-    vidCounter
+  <dt id='lasurl-variable'>
+    lasurl
     =
   </dt>
   <dd>
-    <pre><code class='coffeescript'>0</code></pre>
+    <pre><code class='coffeescript'>&quot;http:&#47;&#47;steen.informatik.rwth-aachen.de:9914&#47;&quot;</code></pre>
     
   </dd>
-  <dt id='vidCounterUploaded-variable'>
-    vidCounterUploaded
+  <dt id='appCode-variable'>
+    appCode
     =
   </dt>
   <dd>
-    <pre><code class='coffeescript'>0</code></pre>
+    <pre><code class='coffeescript'>&quot;sevianno-next&quot;</code></pre>
     
   </dd>
-  <dt id='vidCounterTranscoded-variable'>
-    vidCounterTranscoded
+  <dt id='lasuser-variable'>
+    lasuser
     =
   </dt>
   <dd>
-    <pre><code class='coffeescript'>0</code></pre>
+    <pre><code class='coffeescript'>null</code></pre>
+    
+  </dd>
+  <dt id='allowSendGetLasInfo-variable'>
+    allowSendGetLasInfo
+    =
+  </dt>
+  <dd>
+    <pre><code class='coffeescript'>true</code></pre>
+    
+  </dd>
+  <dt id='videoURLs-variable'>
+    videoURLs
+    =
+  </dt>
+  <dd>
+    <pre><code class='coffeescript'>null</code></pre>
+    
+  </dd>
+  <dt id='thumbnailsURLs-variable'>
+    thumbnailsURLs
+    =
+  </dt>
+  <dd>
+    <pre><code class='coffeescript'>null</code></pre>
+    
+  </dd>
+  <dt id='module.exports-variable'>
+    module.exports
+    =
+  </dt>
+  <dd>
+    <pre><code class='coffeescript'>Sevianno</code></pre>
     
   </dd>
 </dl>
@@ -64,10 +108,21 @@
       <ul class='summary'>
   <li>
     <span class='signature'>
-      <a href='#g-'>
+      <a href='#onLogout-'>
         ~
 (void)
-<b>g</b><span>()</span>
+<b>onLogout</b><span>()</span>
+      </a>
+    </span>
+    <span class='desc'>
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#onLogin-'>
+        ~
+(void)
+<b>onLogin</b><span>()</span>
       </a>
     </span>
     <span class='desc'>
@@ -77,10 +132,19 @@
       <h2>Method Details</h2>
       <div class='methods'>
   <div class='method_details'>
-    <p class='signature' id='g-'>
+    <p class='signature' id='onLogout-'>
       ~
 (void)
-<b>g</b><span>()</span>
+<b>onLogout</b><span>()</span>
+      <br>
+    </p>
+    
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='onLogin-'>
+      ~
+(void)
+<b>onLogin</b><span>()</span>
       <br>
     </p>
     
@@ -88,7 +152,7 @@
 </div>
     </div>
     <div id='footer'>
-  March 26, 14 21:32:00 by
+  March 27, 14 06:37:36 by
   <a href='https://github.com/coffeedoc/codo' title='CoffeeScript API documentation generator'>
     Codo
   </a>

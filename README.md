@@ -32,7 +32,7 @@ grunt
 
 ## Documentation
 You can find documentation of
-[Documentation](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/../doc/index.html)
+[Documentation](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/doc/index.html)
 
 #Demos
 

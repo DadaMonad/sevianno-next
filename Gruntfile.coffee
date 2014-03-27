@@ -14,7 +14,7 @@ module.exports = (grunt) ->
       options:
         title: "Sevianno Library Documentation"
         inputs: ["lib"]
-        output: "doc"
+        output: "widgets/doc"
 
     # Transforms all the nodejs-like files in ./lib to js files in ./widgets/js
     browserify:
