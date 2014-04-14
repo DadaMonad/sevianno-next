@@ -5,8 +5,8 @@ a web application for semantic video annotation developed by the ACIS group, cha
 
 ## Role widgets
 This Repository provides the following widgets.
-* [Upload widget](http://dbis.rwth-aachen.de/~jahns/role-widgets/sevianno-next/upload.xml)
-* [Annotations table](http://dbis.rwth-aachen.de/~jahns/role-widgets/sevianno-next/annotationsTable.xml)
+* [Upload widget](http://127.0.0.1:1337/upload.xml)
+* [Annotations table](http://127.0.0.1:1337/annotationsTable.xml)
 
 #Developer
 In order to work on the widget you need `nodejs` and `npm` installed on your system.
@@ -54,9 +54,25 @@ You can execute the following Grunt tasks:
 ## How to add javasript libraries.
 You can either write simple js-files under ./widegts/js or you write npm modules located in the ./lib folder. These modules may contain other npm modules (the usual way via e.g. `require('jquery')`). Add your module under the _browserify_ section in _Gruntfile.coffee_. When you execute `grunt` these modules are transformed with [browserify](http://browserify.org/articles.html). At the moment these modules are not minified. Please use a tool like 'closure compiler' from google or 'uglify'.
 
+## Libraries
+Copy-paste libraries like jquery is bad style. You should rather use npm modules, [git submodules](http://git-scm.com/book/en/Git-Tools-Submodules) or [bower](http://bower.io/). 
+In this project we locate _git submodules_ here ./widgets/external, and bower modules here ./widgets/bower. There is a bower config file that installs
+bower modules automatically in the right location. 
+
+### Why you should use version management.
+* Easy to upgrade to a newer version of that library
+* You always  have a version that is known to work in your project
+* You are able to compile modules like jquery or bootstrap yourself. 
+* It's much faster to type `bower install jquery` than 
+** visit the library homepage
+** download the library
+** unzip
+** move to the right location
+
+
 
 ## Documentation
-You can find documentation of
+You can find documentation of the Sevianno module here:
 [Documentation](https://rawgit.com/DadaMonad/sevianno-next/master/widgets/doc/index.html)
 
 #Demos
