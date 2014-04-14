@@ -5,15 +5,15 @@ a web application for semantic video annotation developed by the ACIS group, cha
 
 ## Role widgets
 This Repository provides the following widgets.
-* [Upload widget](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/upload.xml)
-* [Annotations table](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/annotationsTable.xml)
+* [Upload widget](http://127.0.0.1:1337/upload.xml)
+* [Annotations table](http://127.0.0.1:1337/annotationsTable.xml)
 
 #Developer
 In order to work on the widget you need `nodejs` and `npm` installed on your system.
 
 Just for convenience we use `grunt` (a nodejs task manager) to start a http server,
 syntax check the code, upload all widgets to ftp, replace urls from `127.0.0.1` to some other url,
-register git hooks and generate documentation.
+register git hooks and generate documentation.  Grunt is incredible helpful, if you want to develop role-widgets.
 
 ```
 npm install -g grunt-cli
@@ -30,9 +30,34 @@ The following command will start grunt and an http server on port 1337
 grunt
 ```
 
+
+## Grunt Tasks
+
+If you haven't used Grunt before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide.
+You can execute the following Grunt tasks:
+* `grunt deploy_all` - upload ./widgets folder to the specified ftp server. The url are replaced automatically.
+* `grunt deploy` - upload ./widgets folder (except pictures and libraries) to the specified ftp server. The url are replaced automatically. This is much faster than deploy_all
+* `grunt replaceUrlsGit` - replace urls to the git-urls
+* `grunt replaceUrlsFtp` - replace urls to the ftp-urls
+* `grunt replaceUrlsDevelopment` - replace urls to the localhost -urls
+* `grunt servewidegts` - start a fileserver accessible under `127.0.0.1:1337`. Will also set CORS headers. Note that this is accessible from everywhere (not just localhost).
+* `grunt save-githooks` - After executing this task, you saved two [githooks](http://git-scm.com/book/en/Customizing-Git-Git-Hooks):
+** `pre-commit` - before you commit, all urls are replaced to git-urls.
+** `post-commit` - after the commit, all urls are replaced back to the localhost-version.
+** This makes it possible to serve widget also via git. Be sure that you use the http://rawgithub... urls (not raw.github...), since they don't overwrite the filetype.
+* `grunt codo` - generate the [CODO](https://github.com/coffeedoc/codo) documentation.
+* `grunt browserify` - Make sure to inform yourself about [browserify](http://browserify.org/articles.html). This tash transforms all the nodejs-like files in ./lib to js files in ./widgets/js .
+* `grunt coffeelint` - check coding style for all coffee files.
+* `grunt jslint` - check coding style for all js files.
+* `grunt` - The defualt task starts a watch daemon that executes `servewidgets`, `coffeelint`, `jshint`, `browserify`, and `codo` tasks when a file is changed.
+
+## How to add javasript libraries.
+You can either write simple js-files under ./widegts/js or you write npm modules located in the ./lib folder. These modules may contain other npm modules (the usual way via e.g. `require('jquery')`). Add your module under the _browserify_ section in _Gruntfile.coffee_. When you execute `grunt` these modules are transformed with [browserify](http://browserify.org/articles.html). At the moment these modules are not minified. Please use a tool like 'closure compiler' from google or 'uglify'.
+
+
 ## Documentation
 You can find documentation of
-[Documentation](https://rawgithub.com/DadaMonad/sevianno-next/master/widgets/doc/index.html)
+[Documentation](http://127.0.0.1:1337/../doc/index.html)
 
 #Demos
 

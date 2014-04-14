@@ -76,7 +76,7 @@ module.exports = (grunt) ->
     # Before commiting we replace urls
     githooks:
       all:
-        'pre-commit': 'replaceUrlsProduction'
+        'pre-commit': 'replaceUrlsGit'
         'post-commit': 'replaceUrlsDevelopment'
     # Task that waits for changes on the filesystem and then executes tasks
     watch:
@@ -231,7 +231,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks "grunt-contrib-jshint"
 
 
-  grunt.registerTask 'replaceUrlsProduction', ['replace:mainGit', 'replace:jsGit', 'replace:cssGit', 'replace:readmeGit']
+  grunt.registerTask 'replaceUrlsGit', ['replace:mainGit', 'replace:jsGit', 'replace:cssGit', 'replace:readmeGit']
   grunt.registerTask 'replaceUrlsFtp', ['replace:mainFtp', 'replace:jsFtp', 'replace:cssFtp', 'replace:readmeFtp']
   grunt.registerTask 'replaceUrlsDevelopment', ['replace:maindev', 'replace:jsdev', 'replace:cssdev', 'replace:readmedev']
   grunt.registerTask 'servewidgets', ['connect']
