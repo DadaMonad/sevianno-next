@@ -42,9 +42,9 @@ You can execute the following Grunt tasks:
 * `grunt replaceUrlsDevelopment` - replace urls to the localhost -urls
 * `grunt servewidegts` - start a fileserver accessible under `127.0.0.1:1337`. Will also set CORS headers. Note that this is accessible from everywhere (not just localhost).
 * `grunt save-githooks` - After executing this task, you saved two [githooks](http://git-scm.com/book/en/Customizing-Git-Git-Hooks):
-..* `pre-commit` - before you commit, all urls are replaced to git-urls.
-..* `post-commit` - after the commit, all urls are replaced back to the localhost-version.
-..* This makes it possible to serve widget also via git. Be sure that you use the http://rawgithub... urls (not raw.github...), since they don't overwrite the filetype.
+  * `pre-commit` - before you commit, all urls are replaced to git-urls.
+  * `post-commit` - after the commit, all urls are replaced back to the localhost-version.
+  * This makes it possible to serve widget also via git. Be sure that you use the http://rawgithub... urls (not raw.github...), since they don't overwrite the filetype.
 * `grunt codo` - generate the [CODO](https://github.com/coffeedoc/codo) documentation.
 * `grunt browserify` - Make sure to inform yourself about [browserify](http://browserify.org/articles.html). This tash transforms all the nodejs-like files in ./lib to js files in ./widgets/js .
 * `grunt coffeelint` - check coding style for all coffee files.
@@ -64,10 +64,10 @@ bower modules automatically in the right location.
 * You always  have a version that is known to work in your project
 * You are able to compile modules like jquery or bootstrap yourself. 
 * It's much faster to type `bower install jquery` than 
-** visit the library homepage
-** download the library
-** unzip
-** move to the right location
+  * visit the library homepage
+  * download the library
+  * unzip
+  * move to the right location
 
 
 
