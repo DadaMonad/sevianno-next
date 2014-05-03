@@ -1,0 +1,8 @@
+{
+  "name": "sevianno-next"
+, "files": [ { "git": 1 } ]
+, "build": {
+    "start_development": "grunt"
+  , "install": "npm install"
+  }
+}
