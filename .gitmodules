@@ -4,3 +4,9 @@
 [submodule "widgets/external/jquery-contextMenu"]
 	path = widgets/external/jquery-contextMenu
 	url = https://github.com/arnklint/jquery-contextMenu
+[submodule "widgetbundles"]
+	path = widgetbundles
+	url = https://github.com/nicolaescu/widgetbundles.git
+[submodule "widgets/external/widgetbundles"]
+	path = widgets/external/widgetbundles
+	url = https://github.com/nicolaescu/widgetbundles.git

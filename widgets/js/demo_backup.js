@@ -129,8 +129,6 @@ var Sevianno, allowSendGetLasInfo, appCode, lasurl, lasuser, onLogin, onLogout, 
 
 _ = require("underscore");
 
-console.log("this is text this is text this is text this is text dtrndt rndtr ndtrn ");
-
 lasurl = "http://steen.informatik.rwth-aachen.de:9914/";
 
 appCode = "sevianno-next";
